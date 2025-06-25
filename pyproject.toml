@@ -1,0 +1,25 @@
+[project]
+name = "dependabot-reporter"
+version = "0.1.0"
+description = "Query GitHub Dependabot for security advisories and summarise to CSV"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "azure-storage-blob==12.25.1",
+    "pygithub>=2.6.1",
+ "python-dotenv>=1.1.0",
+ "requests>=2.32.4",
+]
+
+[dependency-groups]
+dev = ["ipython>=9.3.0"]
+
+[tool.ruff]
+line-length = 140
+indent-width = 4
+
+[tool.ruff.lint]
+ignore = [
+  "E501", # Line too long
+  "E722", # Bare except
+]
