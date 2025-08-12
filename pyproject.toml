@@ -1,14 +1,14 @@
 [project]
 name = "dependabot-reporter"
-version = "0.1.0"
+version = "0.1.1"
 description = "Query GitHub Dependabot for security advisories and summarise to CSV"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<4"
 dependencies = [
-    "azure-storage-blob==12.25.1",
-    "pygithub>=2.6.1",
- "python-dotenv>=1.1.0",
- "requests>=2.32.4",
+  "azure-storage-blob==12.26.0",
+  "pygithub>=2.7.0",
+  "python-dotenv==1.1.1",
+  "requests>=2.32.4",
 ]
 
 [dependency-groups]
