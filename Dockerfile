@@ -8,12 +8,9 @@ ENV UV_LINK_MODE=copy \
   UV_PROJECT_ENVIRONMENT=/app/.venv
 
 COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /bin/
+WORKDIR /_lock
 COPY pyproject.toml uv.lock /_lock/
-RUN --mount=type=cache,target=/root/.cache \
-  cd /_lock && \
-  uv sync \
-  --frozen \
-  --no-group dev
+RUN --mount=type=cache,target=/root/.cache uv sync --frozen --no-group dev
 
 ##################################################################################
 
@@ -25,6 +22,7 @@ LABEL org.opencontainers.image.source=https://github.com/dbca-wa/dependabot-repo
 RUN groupadd -r -g 10001 app \
   && useradd -r -u 10001 -d /app -g app -N app
 
+WORKDIR /app
 COPY --from=builder_base --chown=app:app /app /app
 # Make sure we use the virtualenv by default
 ENV PATH="/app/.venv/bin:$PATH" \
@@ -32,6 +30,5 @@ ENV PATH="/app/.venv/bin:$PATH" \
   PYTHONUNBUFFERED=1
 
 # Install the project.
-WORKDIR /app
 COPY *.py ./
 USER app
