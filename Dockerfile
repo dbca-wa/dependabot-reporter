@@ -1,34 +1,22 @@
 # syntax=docker/dockerfile:1
-# Prepare the base environment.
-FROM python:3.13-slim-bookworm AS builder_base
+FROM dhi.io/python:3.13-debian13-dev@sha256:afbe9dc3a5482aa5a10a1b3f6b169d71cfb0565d6ca223279af3c60696ae1cbe AS build-stage
 
-ENV UV_LINK_MODE=copy \
-  UV_COMPILE_BYTECODE=1 \
-  UV_PYTHON_DOWNLOADS=never \
-  UV_PROJECT_ENVIRONMENT=/app/.venv
-
-COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /uvx /bin/
-WORKDIR /_lock
-COPY pyproject.toml uv.lock /_lock/
-RUN --mount=type=cache,target=/root/.cache uv sync --frozen --no-group dev
+# Copy and configure uv, to install dependencies
+COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /bin/
+WORKDIR /app
+# Install project dependencies
+COPY pyproject.toml uv.lock ./
+RUN uv sync --no-group dev --link-mode=copy --compile-bytecode --no-python-downloads --frozen
 
 ##################################################################################
 
-FROM python:3.13-slim-bookworm
+FROM dhi.io/python:3.13 AS runtime-stage
 LABEL org.opencontainers.image.authors=asi@dbca.wa.gov.au
 LABEL org.opencontainers.image.source=https://github.com/dbca-wa/dependabot-reporter
 
-# Create a non-root user.
-RUN groupadd -r -g 10001 app \
-  && useradd -r -u 10001 -d /app -g app -N app
-
+# Copy over the project virtualenv
 WORKDIR /app
-COPY --from=builder_base --chown=app:app /app /app
-# Make sure we use the virtualenv by default
-ENV PATH="/app/.venv/bin:$PATH" \
-  # Run Python unbuffered:
-  PYTHONUNBUFFERED=1
-
-# Install the project.
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/app/.venv/bin:$PATH"
+COPY --from=build-stage /app /app
 COPY *.py ./
-USER app
