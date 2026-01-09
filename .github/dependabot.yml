@@ -20,9 +20,10 @@ updates:
     commit-message:
       prefix: '[actions] '
   - package-ecosystem: 'docker'
+    registries: '*'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
     commit-message:
       prefix: '[docker] '
     # Don't create PRs for major SemVer updates, only minor and patch level
